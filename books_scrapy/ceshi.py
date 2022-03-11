@@ -26,6 +26,33 @@ class biqukan:
             'qitaxiaoshuo': '其他',
             'wanben': '完本'
         }
+        '''
+        connect to sql
+        '''
+        self.host = 'localhost'
+        self.username = 'root'
+        self.password = 'sumuc'
+        self.dbname = 'books'
+        self.port = 3307
+        self.cur = None
+        self.conn = None
+
+    def connect_database(self):
+        self.conn = pymysql.connect(host=self.host, user=self.username, passwd=self.password, db=self.dbname, port=self.port)
+        self.cur = self.conn.cursor()
+
+    def excute_sql(self, sql):
+        try:
+            self.cur.execute(sql)
+            self.conn.commit()
+            return True
+        except Exception as e:
+            return False
+
+
+    def close_database(self):
+        self.cur.close()
+        self.conn.close()
 
     def get_download_url(self, target_url):
         '''
@@ -67,17 +94,13 @@ class biqukan:
         soup_text = BeautifulSoup(str(texts), 'lxml').div.text.replace('\xa0', '')
         return soup_text
 
-    def writer(self, name, path, text):
+    def writer(self):
         '''
 		write to sql
 		'''
-        host = 'localhost'
-        username = 'root'
-        password = 'sumuc'
-        dbname = 'books'
-        db = pymysql.connect(host, username, password, dbname)
-        cursor = db.cursor()
-        sql = 'insert into '
+        self.connect_database()
+        sql = "insert into books_massage(book_id,book_name,author,section_num,brief_introduction,classify) values (1,'asdf','da',12,'fdsafasf','dsav')"
+        print(self.excute_sql(sql))
 
     def get_url(self, type):
         url = 'https://www.bqkan8.com/{0}/'.format(type)
@@ -120,5 +143,4 @@ class biqukan:
 
 if __name__ == '__main__':
     # biqukan().hello().run()
-    a = biqukan()
-    a.get_url()
+    biqukan().writer()
